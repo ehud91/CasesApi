@@ -163,10 +163,82 @@ In order to create the application table:
 sql_query_create_table_cases.sql
 ```
 
+### Logs configurations
+
+In order to change the log path and/or logs file name, go to:
+
+```shell
+/CasesApi/src/main/resources/logback-spring.xml
+```
+
+In order to change the log path, change the value under the "LOGS" property:
+
+```xml
+<property name="LOGS" value="./logs" />
+```
+
+You may change the logs name under the <file></file> property:
+
+```xml
+<file>${LOGS}/CasesApi.log</file>
+```
+
+and in the <fileNamePattern></fileNamePattern> property:
+
+```xml
+<fileNamePattern>${LOGS}/archived/CasesApi-%d{yyyy-MM-dd}.%i.log</fileNamePattern>
+```
+
+```xml
+<?xml version="1.0" encoding="UTF-8"?>
+<configuration>
+
+    <property name="LOGS" value="./logs" />
+
+    <appender name="Console"
+              class="ch.qos.logback.core.ConsoleAppender">
+        <layout class="ch.qos.logback.classic.PatternLayout">
+            <Pattern>%d %p %C{1.} [%t] %m%n</Pattern>
+        </layout>
+    </appender>
+
+    <appender name="RollingFile"
+              class="ch.qos.logback.core.rolling.RollingFileAppender">
+        <file>${LOGS}/CasesApi.log</file>
+        <encoder
+                class="ch.qos.logback.classic.encoder.PatternLayoutEncoder">
+            <Pattern>%d %p %C{1.} [%t] %m%n</Pattern>
+        </encoder>
+
+        <rollingPolicy
+                class="ch.qos.logback.core.rolling.TimeBasedRollingPolicy">
+            <!-- rollover daily and when the file reaches 10 MegaBytes -->
+            <fileNamePattern>${LOGS}/archived/CasesApi-%d{yyyy-MM-dd}.%i.log
+            </fileNamePattern>
+            <timeBasedFileNamingAndTriggeringPolicy
+                    class="ch.qos.logback.core.rolling.SizeAndTimeBasedFNATP">
+                <maxFileSize>10MB</maxFileSize>
+            </timeBasedFileNamingAndTriggeringPolicy>
+        </rollingPolicy>
+    </appender>
+
+    <root level="info">
+        <appender-ref ref="RollingFile" />
+        <appender-ref ref="Console" />
+    </root>
+
+    <logger name="com.casesapi" level="trace" additivity="false">
+        <appender-ref ref="RollingFile" />
+        <appender-ref ref="Console" />
+    </logger>
+
+</configuration>
+```
+
 ### Test the application
 
 1. Go to your browser / [Postman](https://www.postman.com/downloads/) and run the service URI - http://localhost:1020/api/getAllCasesApi
-2 The results from the service should contains this json content:
+2. The results from the service should contains this json content:
 
 ```json
 {
